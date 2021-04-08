@@ -1,5 +1,5 @@
 # AuroraCrashPatcher
-Quick and dirty patch to prevent fatal crashing when downloading title assets (boxart, etc) through FSD or Aurora.
+Quick and dirty patch to prevent fatal crashing when downloading title assets (boxart, etc) through FSD or Aurora. Currently this patch only works for users inside the US.
 
 ## Install/Usage
 - Download the compiled xex (direct link: https://github.com/StelioKontosXBL/AuroraCrashPatcher/blob/c32cd3e0c9e02dc59fc31de2f293994d788fed01/AuroraCrashPatcher.xex)
