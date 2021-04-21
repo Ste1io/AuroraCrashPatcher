@@ -1,65 +1,43 @@
-//
-// By Stelio Kontos
-// April 2, 2021
-//
-// Quick and dirty patch to prevent fatal crashing when 
-// downloading title assets (boxart, etc) through FSD and Aurora.
-// 
+/*
+ * Name:	AuroraCrashPatcher
+ * Author:	Stelio Kontos
+ * Desc:	Quick and dirty patch to prevent fatal crashing when
+ *			downloading title assets (boxart, etc) through FSD and Aurora.
+ *
+ * Changelog:
+ * v0.1-beta: 04/02/2021
+ *		-	Initial commit.
+ * v0.2-beta: 04/20/2021
+ *		-	Changed base address to avoid conflict with nomni.
+ *		-	Replaced hook method to more accurately identify and intercept the
+ *			api calls causing the crash for everyone regardless of geographic locale.
+ */
 
 #include "stdafx.h"
 #include "Detour.h"
 
 uint32_t g_flag = 0;
 HANDLE g_hModule, g_hThread = 0;
-Detour<int32_t> origHook;
+Detour<INT> origHook;
 
-int32_t HookProc(uint32_t xnc, SOCKET sock, const sockaddr *name, int namelen) {
-	int32_t result = ((int32_t(*)(uint32_t, SOCKET, const sockaddr *, int))origHook.SaveStub)(xnc, sock, name, namelen);
-
-	if (*(uint16_t *)name->sa_data != 0x50)
-		return result;
-
-	#if VERBOSE_DBG_PRINT
-	sockaddr_in *addr = (sockaddr_in *)name;
-	skDbgPrint("[sk] - connect(xnc=%i, s=0x%X, f=%i, p=%i, a=0x%08X) ==  %i; //%i.%i.%i.%i:%i" skNewLn,
-		xnc,
-		sock,
-		addr->sin_family,
-		addr->sin_port,
-		addr->sin_addr.S_un.S_addr,
-		result,
-		addr->sin_addr.S_un.S_un_b.s_b1,
-		addr->sin_addr.S_un.S_un_b.s_b2,
-		addr->sin_addr.S_un.S_un_b.s_b3,
-		addr->sin_addr.S_un.S_un_b.s_b4,
-		addr->sin_port
-	);
-	#endif
-
-	switch ((*((uint32_t *)name + 1) >> 0x18) & 0xFF) {
-		case 0x17: //akamai
-		case 0x08: //level3
-		case 0x43:
-			result = SOCKET_ERROR;
-			WSASetLastError(WSAEADDRNOTAVAIL);
-			skDbgPrint("[sk] Blocked connection attempt to (IP=0x%08X):" skNewLn, *((uint32_t *)name + 1));
-			break;
-		default:
-			break;
+INT HookProc(INT x, PCHAR h, HANDLE e, XNDNS **s) {
+	if (!strcmp(h, "download.xbox.com")) {
+		skDbgPrint("[sk] Intercepted DNS Lookup for \"%s\"" skNewLn, h);
+		strncpy(h, "stelio.kontos.nop", strlen(h));
 	}
-
-	return result;
+	return ((INT(*)(INT, PCHAR, HANDLE, XNDNS **))origHook.SaveStub)(x, h, e, s);
 }
 
 DWORD WINAPI MainThread(LPVOID lpParameter) {
-	auto Run = [](uint32_t title) -> bool {
+	auto Run = [] (uint32_t title) -> bool
+	{
 		static uint32_t last = 0;
 		if (!g_flag) {
 			if (title != last) {
 				if (title == 0xFFFE07D1 && ((uint32_t(*)(PVOID))0x800819D0)((PVOID)0x82000000)) {
-					DbgPrint("[sk] AuroraCrashPatcher %s. Control flag @ 0x%X" skNewLn, !g_flag ? "ENABLED" : "DISABLED", &g_flag);
+					DbgPrint("[sk] AuroraCrashPatcher by Stelio Kontos: %s. Control flag @ 0x%X" skNewLn, !g_flag ? "ENABLED" : "DISABLED", &g_flag);
 					DbgPrint("[sk] Flag options: default=0x0, unload=0x1, destroy=0xDEADC0DE" skNewLn);
-					origHook.SetupDetour(0x81741BF8, HookProc);
+					origHook.SetupDetour(0x81741150, HookProc);
 				} else if (last == 0xFFFE07D1) {
 					origHook.TakeDownDetour();
 				}
@@ -68,18 +46,17 @@ DWORD WINAPI MainThread(LPVOID lpParameter) {
 			return true;
 		} else {
 			origHook.TakeDownDetour();
-			if (g_flag == 0xDEADC0DE) {
+			if (g_flag == 0xDEADC0DE)
 				SelfDestruct(g_hModule);
-			}
 			return false;
 		}
 	};
 
 	while (Run(((uint32_t(*)())0x816E03B8)()))
-		Sleep(16);
+		Sleep(100);
 
 	*(uint16_t *)((uint8_t *)g_hModule + 0x40) = 1;
-	((void(*)(...))0x8007D190)(g_hModule, g_hThread);
+	((void(*)(HANDLE, HANDLE))0x8007D190)(g_hModule, g_hThread);
 
 	return 0;
 }

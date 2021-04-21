@@ -15,8 +15,6 @@ extern "C" unsigned long __cdecl DbgPrint(char *, ...);
 #define skNewLn
 #endif
 
-#define VERBOSE_DBG_PRINT         0
-
 #define HDD                       "\\Device\\Harddisk0\\Partition1"
 #define USB                       "\\Device\\Mass0"
 #define SKMOUNT                   "SK_ACP:\\"
