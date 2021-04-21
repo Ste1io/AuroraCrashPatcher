@@ -11,6 +11,8 @@
  *		-	Changed base address to avoid conflict with nomni.
  *		-	Replaced hook method to more accurately identify and intercept the
  *			api calls causing the crash for everyone regardless of geographic locale.
+ * v0.3-beta: 04/21/2021
+ *		-	Added check to disable patching if Aurora/FSD update is detected.
  */
 
 #include "stdafx.h"
@@ -32,14 +34,17 @@ DWORD WINAPI MainThread(LPVOID lpParameter) {
 	auto Run = [] (uint32_t title) -> bool
 	{
 		static uint32_t last = 0;
-		if (!g_flag) {
+		if (g_flag < 2) {
 			if (title != last) {
 				if (title == 0xFFFE07D1 && ((uint32_t(*)(PVOID))0x800819D0)((PVOID)0x82000000)) {
+					g_flag = ByteSwap(*(uint32_t*)(0x82000008 + ByteSwap(*(uint32_t*)0x8200003C))) > 0x607F951E;
 					DbgPrint("[sk] AuroraCrashPatcher by Stelio Kontos: %s. Control flag @ 0x%X" skNewLn, !g_flag ? "ENABLED" : "DISABLED", &g_flag);
-					DbgPrint("[sk] Flag options: default=0x0, unload=0x1, destroy=0xDEADC0DE" skNewLn);
-					origHook.SetupDetour(0x81741150, HookProc);
+					DbgPrint("[sk] Flag options: enable=0x0, disable=0x1, unload=0x2, destroy=0xDEADC0DE" skNewLn);
+					if (!g_flag)
+						origHook.SetupDetour(0x81741150, HookProc);
 				} else if (last == 0xFFFE07D1) {
 					origHook.TakeDownDetour();
+					g_flag = 0;
 				}
 				last = title;
 			}
