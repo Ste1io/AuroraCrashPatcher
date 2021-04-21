@@ -164,7 +164,7 @@
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <ExceptionHandling>false</ExceptionHandling>
-      <StringPooling>true</StringPooling>
+      <StringPooling>false</StringPooling>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -200,7 +200,7 @@
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <ExceptionHandling>false</ExceptionHandling>
-      <StringPooling>true</StringPooling>
+      <StringPooling>false</StringPooling>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CallAttributedProfiling>Fastcap</CallAttributedProfiling>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
@@ -234,7 +234,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <StringPooling>true</StringPooling>
+      <StringPooling>false</StringPooling>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <ExceptionHandling>false</ExceptionHandling>
@@ -268,7 +268,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <StringPooling>true</StringPooling>
+      <StringPooling>false</StringPooling>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <ExceptionHandling>false</ExceptionHandling>
@@ -277,7 +277,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PreprocessorDefinitions>NDEBUG;_XBOX;LTCG</PreprocessorDefinitions>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <TrapIntegerDividesOptimization>true</TrapIntegerDividesOptimization>
+      <TrapIntegerDividesOptimization>false</TrapIntegerDividesOptimization>
       <ExpandAttributedSource>true</ExpandAttributedSource>
       <AssemblerOutput>All</AssemblerOutput>
     </ClCompile>

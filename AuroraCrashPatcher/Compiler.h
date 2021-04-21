@@ -9,10 +9,8 @@ extern "C" unsigned long __cdecl DbgPrint(char *, ...);
 
 #ifndef NDEBUG
 #define skDbgPrint                DbgPrint
-#define skNewLn                   "\n"
 #else
 #define skDbgPrint
-#define skNewLn
 #endif
 
 #define HDD                       "\\Device\\Harddisk0\\Partition1"

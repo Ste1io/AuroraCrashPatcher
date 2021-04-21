@@ -110,7 +110,6 @@ extern "C" {
 	LONG XexGetProcedureAddress(HANDLE, DWORD, PVOID);
 	PVOID RtlImageXexHeaderField(PVOID xexHeaderBase, DWORD key);
 	BOOL MmIsAddressValid(PVOID address);
-	DWORD XQueryMemoryProtect(PVOID address);
 	VOID RtlInitAnsiString(PSTRING DestinationString, CONST CHAR *SourceString); //300
 	LONG ObCreateSymbolicLink(PSTRING SymbolicLinkName, PSTRING DeviceName); //259
 	LONG ObDeleteSymbolicLink(PSTRING SymbolicLinkName); //260
@@ -149,5 +148,5 @@ SK_INLINE uint32_t ByteSwap(uint32_t value) {
 }
 
 BOOL MountSysDrives();
-bool FileExists(LPCSTR lpFileName);
-void SelfDestruct(HANDLE hModule);
+BOOL FileExists(LPCSTR fileName);
+BOOL SelfDestruct(HANDLE hModule);

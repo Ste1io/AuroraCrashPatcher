@@ -29,37 +29,39 @@ BOOL MountSysDrives() {
 	return CreateSymbolicLink(SKMOUNT, USB, TRUE);
 }
 
-bool FileExists(LPCSTR lpFileName) {
-	if (GetFileAttributesA(lpFileName) == -1) {
+BOOL FileExists(LPCSTR fileName) {
+	if (GetFileAttributesA(fileName) == -1) {
 		CONST DWORD lastError = GetLastError();
 		if (lastError == 2L || lastError == 3L)
-			return false;
+			return FALSE;
 	}
-	return true;
+	return TRUE;
 }
 
-void SelfDestruct(HANDLE hModule) {
+BOOL SelfDestruct(HANDLE hModule) {
 	char chName[260];
 	wchar_t *wchName = (*(UNICODE_STRING*)((uint8_t *)hModule + 0x24)).Buffer;
 	auto len = wcstombs(chName, wchName, 260);
 	chName[len] = '\0';
-	skDbgPrint("Deleting file: %s" skNewLn, chName);
 
-	if (!MountSysDrives()) {
-		skDbgPrint("Failed to mount system drives" skNewLn);
-	} else {
-		char name[260];
-		int nameIdx;
-		for (nameIdx = strlen(chName) - 1; nameIdx > 0 && chName[nameIdx] != '\\'; nameIdx--);
-		strcpy(name, SKMOUNT);
-		strcat(name, &chName[nameIdx]);
+	skDbgPrint("[sk] Attempting to delete file: %s\n", chName);
 
-		if (!FileExists(name)) {
-			skDbgPrint("Error finding file: %s" skNewLn, name);
-		} else {
-			if (!DeleteFileA(name)) {
-				skDbgPrint("Error deleting file: %s" skNewLn, name);
-			}
-		}
+	char chPath[260];
+	int i = strlen(chName) - 1;
+	for (; i > 0 && chName[i] != '\\'; i--);
+	strcpy(chPath, SKMOUNT);
+	strcat(chPath, &chName[i]);
+
+	if (!FileExists(chPath)) {
+		skDbgPrint("[sk] Error finding file: %s\n", chPath);
+		return FALSE;
 	}
+
+	if (!DeleteFileA(chPath)) {
+		skDbgPrint("[sk] Error deleting file: %s\n", chPath);
+		return FALSE;
+	}
+
+	skDbgPrint("[sk] Successfully deleted file: %s\n", chName);
+	return TRUE;
 }

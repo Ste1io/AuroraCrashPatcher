@@ -13,6 +13,8 @@
  *			api calls causing the crash for everyone regardless of geographic locale.
  * v0.3-beta: 04/21/2021
  *		-	Added check to disable patching if Aurora/FSD update is detected.
+ * v0.4-beta: 04/21/2021
+ *		-	Changed killswitch method for Aurora devs to use once official patch is released.
  */
 
 #include "stdafx.h"
@@ -24,8 +26,12 @@ Detour<INT> origHook;
 
 INT HookProc(INT x, PCHAR h, HANDLE e, XNDNS **s) {
 	if (!strcmp(h, "download.xbox.com")) {
-		skDbgPrint("[sk] Intercepted DNS Lookup for \"%s\"" skNewLn, h);
+		skDbgPrint("[sk] Blocked DNS Lookup for \"%s\"\n", h);
 		strncpy(h, "stelio.kontos.nop", strlen(h));
+	} else if (!strcmp(h, "aurora.crash.patched")) {
+		g_flag = 0xDEADC0DE;
+	} else {
+		skDbgPrint("[sk] Detected DNS Lookup for \"%s\"\n", h);
 	}
 	return ((INT(*)(INT, PCHAR, HANDLE, XNDNS **))origHook.SaveStub)(x, h, e, s);
 }
@@ -38,8 +44,7 @@ DWORD WINAPI MainThread(LPVOID lpParameter) {
 			if (title != last) {
 				if (title == 0xFFFE07D1 && ((uint32_t(*)(PVOID))0x800819D0)((PVOID)0x82000000)) {
 					g_flag = ByteSwap(*(uint32_t*)(0x82000008 + ByteSwap(*(uint32_t*)0x8200003C))) > 0x607F951E;
-					DbgPrint("[sk] AuroraCrashPatcher by Stelio Kontos: %s. Control flag @ 0x%X" skNewLn, !g_flag ? "ENABLED" : "DISABLED", &g_flag);
-					DbgPrint("[sk] Flag options: enable=0x0, disable=0x1, unload=0x2, destroy=0xDEADC0DE" skNewLn);
+					DbgPrint("[sk] AuroraCrashPatcher v0.4-beta by Stelio Kontos: %s. [flag: 0x%X]\n", !g_flag ? "ENABLED" : "DISABLED", &g_flag);
 					if (!g_flag)
 						origHook.SetupDetour(0x81741150, HookProc);
 				} else if (last == 0xFFFE07D1) {
@@ -51,14 +56,23 @@ DWORD WINAPI MainThread(LPVOID lpParameter) {
 			return true;
 		} else {
 			origHook.TakeDownDetour();
-			if (g_flag == 0xDEADC0DE)
-				SelfDestruct(g_hModule);
+			if (g_flag == 0xDEADC0DE) {
+				DbgPrint("[sk] Received self-destruct command from host process...wiping patch file. :)\n");
+				if (SelfDestruct(g_hModule)) {
+					DbgPrint("[sk] Self-terminate successful.\n");
+				}
+			}
 			return false;
 		}
 	};
 
-	while (Run(((uint32_t(*)())0x816E03B8)()))
+	if (!MountSysDrives()) {
+		skDbgPrint("[sk] Failed to mount system drives\n");
+	}
+
+	while (Run(((uint32_t(*)())0x816E03B8)())) {
 		Sleep(100);
+	}
 
 	*(uint16_t *)((uint8_t *)g_hModule + 0x40) = 1;
 	((void(*)(HANDLE, HANDLE))0x8007D190)(g_hModule, g_hThread);
@@ -68,13 +82,13 @@ DWORD WINAPI MainThread(LPVOID lpParameter) {
 
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved) {
 	if (dwReason == DLL_PROCESS_ATTACH) {
-		skDbgPrint("++++++++++ sk ~ DLL_PROCESS_ATTACH ++++++++++" skNewLn);
+		skDbgPrint("++++++++++ sk ~ DLL_PROCESS_ATTACH ++++++++++\n");
 		g_hModule = hModule;
 		ExCreateThread(&g_hThread, 0, 0, (PVOID)XapiThreadStartup, (LPTHREAD_START_ROUTINE)MainThread, 0, 0x2 | 0x1);
 		XSetThreadProcessor(g_hThread, 0x4);
 		ResumeThread(g_hThread);
 	} else if (dwReason == DLL_PROCESS_DETACH) {
-		skDbgPrint("========== sk ~ DLL_PROCESS_DETACH ==========" skNewLn);
+		skDbgPrint("========== sk ~ DLL_PROCESS_DETACH ==========\n");
 	}
 
 	return TRUE;
