@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xex>
-	<baseaddr addr="0x91090000"/>
+	<baseaddr addr="0x910E0000"/>
 	<sysdll/>
 	<format>
 		<compressed/>
