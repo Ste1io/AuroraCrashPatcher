@@ -15,6 +15,7 @@
  *		-	Added check to disable patching if Aurora/FSD update is detected.
  * v0.4-beta: 04/21/2021
  *		-	Changed killswitch method for Aurora devs to use once official patch is released.
+ * v1.0: 04/22/2021
  */
 
 #include "stdafx.h"
@@ -29,7 +30,7 @@ INT HookProc(INT x, PCHAR h, HANDLE e, XNDNS **s) {
 		skDbgPrint("[sk] Blocked DNS Lookup for \"%s\"\n", h);
 		strncpy(h, "stelio.kontos.nop", strlen(h));
 	} else if (!strcmp(h, "aurora.crash.patched")) {
-		g_flag = 0xDEADC0DE;
+		g_flag = 0xDEADC0DE; //killswitch
 	} else {
 		skDbgPrint("[sk] Detected DNS Lookup for \"%s\"\n", h);
 	}
@@ -44,7 +45,7 @@ DWORD WINAPI MainThread(LPVOID lpParameter) {
 			if (title != last) {
 				if (title == 0xFFFE07D1 && ((uint32_t(*)(PVOID))0x800819D0)((PVOID)0x82000000)) {
 					g_flag = ByteSwap(*(uint32_t*)(0x82000008 + ByteSwap(*(uint32_t*)0x8200003C))) > 0x607F951E;
-					DbgPrint("[sk] AuroraCrashPatcher v0.4-beta by Stelio Kontos: %s. [flag: 0x%X]\n", !g_flag ? "ENABLED" : "DISABLED", &g_flag);
+					DbgPrint("[sk] AuroraCrashPatcher v" SK_VERSION " by Stelio Kontos: %s. [flag: 0x%X]\n", !g_flag ? "ENABLED" : "DISABLED", &g_flag);
 					if (!g_flag)
 						origHook.SetupDetour(0x81741150, HookProc);
 				} else if (last == 0xFFFE07D1) {
