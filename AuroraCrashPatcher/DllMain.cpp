@@ -16,6 +16,11 @@
  * v0.4-beta: 04/21/2021
  *		-	Changed killswitch method for Aurora devs to use once official patch is released.
  * v1.0: 04/22/2021
+ * v1.1: 04/25/2021
+ *		-	Added XNotify, adjusted base address. Diagnosed bug causing patch to not work
+ *			for some users; if using the patch, be sure LiveBlock/LiveStrong are disabled
+ *			and you have a stealth in your plugins. Will update to work with Live blocked.
+ *			(Thanks for the help, rubensyama).
  */
 
 #include "stdafx.h"

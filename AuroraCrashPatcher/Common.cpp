@@ -28,7 +28,6 @@ namespace {
 	}
 } //namespace
 
-
 VOID XNotify(PWCHAR chText) {
 	if (((uint8_t(*)())0x80071A68)() != 1) {
 		CreateThread(0, 0, XNotifyProc, chText, 0, 0);
