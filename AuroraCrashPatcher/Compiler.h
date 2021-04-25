@@ -13,7 +13,7 @@ extern "C" unsigned long __cdecl DbgPrint(char *, ...);
 #define skDbgPrint
 #endif
 
-#define SK_VERSION                "1.0"
+#define SK_VERSION                "1.1"
 
 #define HDD                       "\\Device\\Harddisk0\\Partition1"
 #define USB                       "\\Device\\Mass0"

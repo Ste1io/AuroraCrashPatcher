@@ -117,7 +117,7 @@
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
       <AdditionalDependencies>xapilibd.lib;d3d9d.lib;d3dx9d.lib;xgraphicsd.lib;xboxkrnl.lib;xnetd.lib;xaudiod2.lib;xactd3.lib;x3daudiod.lib;xmcored.lib;xbdm.lib;vcompd.lib;xhttp.lib;</AdditionalDependencies>
       <AdditionalOptions>/dll /ALIGN:128,4096 %(AdditionalOptions)</AdditionalOptions>
-      <BaseAddress>0x910E0000</BaseAddress>
+      <BaseAddress>0x90D00000</BaseAddress>
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>$(OutDir)$(ProjectName).map</MapFileName>
       <MapExports>true</MapExports>
@@ -125,6 +125,9 @@
     <ImageXex>
       <ConfigurationFile>xex.xml</ConfigurationFile>
     </ImageXex>
+    <PostBuildEvent>
+      <Command>copy /Y "$(ImageXexOutput)" "$(SolutionDir)Dist\$(ImageName)-$(ConfigurationName).xex"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='CodeAnalysis|Xbox 360'">
     <ClCompile>
@@ -148,7 +151,7 @@
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
       <AdditionalDependencies>xapilibd.lib;d3d9d.lib;d3dx9d.lib;xgraphicsd.lib;xboxkrnl.lib;xnetd.lib;xaudiod2.lib;xactd3.lib;x3daudiod.lib;xmcored.lib;xbdm.lib;vcompd.lib;xhttp.lib;</AdditionalDependencies>
       <AdditionalOptions>/dll /ALIGN:128,4096 %(AdditionalOptions)</AdditionalOptions>
-      <BaseAddress>0x910E0000</BaseAddress>
+      <BaseAddress>0x90D00000</BaseAddress>
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>$(OutDir)$(ProjectName).map</MapFileName>
       <MapExports>true</MapExports>
@@ -184,7 +187,7 @@
       <SetChecksum>true</SetChecksum>
       <AdditionalDependencies>xapilibi.lib;d3d9i.lib;d3dx9.lib;xgraphics.lib;xboxkrnl.lib;xnet.lib;xaudio2.lib;xact3i.lib;x3daudioi.lib;xmcorei.lib;xbdm.lib;vcomp.lib;xhttp.lib;</AdditionalDependencies>
       <AdditionalOptions>/dll /ALIGN:128,4096 %(AdditionalOptions)</AdditionalOptions>
-      <BaseAddress>0x910E0000</BaseAddress>
+      <BaseAddress>0x90D00000</BaseAddress>
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>$(OutDir)$(ProjectName).map</MapFileName>
       <MapExports>true</MapExports>
@@ -219,7 +222,7 @@
       <SetChecksum>true</SetChecksum>
       <AdditionalDependencies>xapilib.lib;d3d9.lib;d3dx9.lib;xgraphics.lib;xboxkrnl.lib;xnet.lib;xaudio2.lib;xact3.lib;x3daudio.lib;xmcore.lib;vcomp.lib;xbdm.lib;xhttp.lib;</AdditionalDependencies>
       <AdditionalOptions>/dll /ALIGN:128,4096 %(AdditionalOptions)</AdditionalOptions>
-      <BaseAddress>0x910E0000</BaseAddress>
+      <BaseAddress>0x90D00000</BaseAddress>
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>$(OutDir)$(ProjectName).map</MapFileName>
       <MapExports>true</MapExports>
@@ -253,7 +256,7 @@
       <SetChecksum>true</SetChecksum>
       <AdditionalDependencies>xapilib.lib;d3d9.lib;d3dx9.lib;xgraphics.lib;xboxkrnl.lib;xnet.lib;xaudio2.lib;xact3.lib;x3daudio.lib;xmcore.lib;vcomp.lib;xhttp.lib;</AdditionalDependencies>
       <AdditionalOptions>/dll /ALIGN:128,4096 %(AdditionalOptions)</AdditionalOptions>
-      <BaseAddress>0x910E0000</BaseAddress>
+      <BaseAddress>0x90D00000</BaseAddress>
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>$(OutDir)$(ProjectName).map</MapFileName>
       <MapExports>true</MapExports>
@@ -268,7 +271,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <StringPooling>false</StringPooling>
+      <StringPooling>true</StringPooling>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <ExceptionHandling>false</ExceptionHandling>
@@ -282,14 +285,15 @@
       <AssemblerOutput>All</AssemblerOutput>
     </ClCompile>
     <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>
+      </ProgramDatabaseFile>
       <SetChecksum>true</SetChecksum>
       <AdditionalDependencies>xapilib.lib;d3d9ltcg.lib;d3dx9.lib;xgraphics.lib;xboxkrnl.lib;xnet.lib;xaudio2.lib;xact3ltcg.lib;x3daudioltcg.lib;xmcoreltcg.lib;vcomp.lib;xhttp.lib;</AdditionalDependencies>
       <AdditionalOptions>/dll /ALIGN:128,4096 %(AdditionalOptions)</AdditionalOptions>
-      <BaseAddress>0x910E0000</BaseAddress>
+      <BaseAddress>0x90D00000</BaseAddress>
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>$(OutDir)$(ProjectName).map</MapFileName>
       <MapExports>true</MapExports>
@@ -297,6 +301,9 @@
     <ImageXex>
       <ConfigurationFile>xex.xml</ConfigurationFile>
     </ImageXex>
+    <PostBuildEvent>
+      <Command>copy /Y "$(ImageXexOutput)" "$(SolutionDir)Dist\$(ImageFileName)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />

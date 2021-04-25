@@ -105,6 +105,7 @@ typedef struct _LDR_DATA_TABLE_ENTRY {
 extern "C" {
 	#endif
 	VOID XapiThreadStartup(void(__cdecl *)(void*), void *, DWORD);
+	HANDLE CreateThread(LPVOID, DWORD, LPTHREAD_START_ROUTINE, LPVOID, DWORD, LPDWORD);
 	DWORD ExCreateThread(PHANDLE, DWORD, LPDWORD, PVOID, LPTHREAD_START_ROUTINE, LPVOID, DWORD);
 	LONG XexGetModuleHandle(PCHAR, PHANDLE);
 	LONG XexGetProcedureAddress(HANDLE, DWORD, PVOID);
@@ -142,8 +143,8 @@ SK_INLINE DWORD ResolveFunction(PCHAR moduleName, DWORD ordinal) {
 
 SK_INLINE uint32_t ByteSwap(uint32_t value) {
 	return (value & 0x000000FF) << 0x18
-		| (value & 0x0000FF00) << 0x08 
-		| (value & 0x00FF0000) >> 0x08 
+		| (value & 0x0000FF00) << 0x08
+		| (value & 0x00FF0000) >> 0x08
 		| (value & 0xFF000000) >> 0x18;
 }
 
