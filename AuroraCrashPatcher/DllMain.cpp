@@ -47,7 +47,10 @@ DWORD WINAPI MainThread(LPVOID lpParameter) {
 					g_flag = ByteSwap(*(uint32_t*)(0x82000008 + ByteSwap(*(uint32_t*)0x8200003C))) > 0x607F951E;
 					DbgPrint("[sk] AuroraCrashPatcher v" SK_VERSION " by Stelio Kontos: %s. [flag: 0x%X]\n", !g_flag ? "ENABLED" : "DISABLED", &g_flag);
 					if (!g_flag)
+					{
 						origHook.SetupDetour(0x81741150, HookProc);
+						XNotify(L"AuroraCrashPatcher by Stelio Kontos: ENABLED");
+					}
 				} else if (last == 0xFFFE07D1) {
 					origHook.TakeDownDetour();
 					g_flag = 0;
