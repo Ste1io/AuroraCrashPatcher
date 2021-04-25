@@ -121,8 +121,6 @@
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>$(OutDir)$(ProjectName).map</MapFileName>
       <MapExports>true</MapExports>
-      <FixedBaseAddress>
-      </FixedBaseAddress>
     </Link>
     <ImageXex>
       <ConfigurationFile>xex.xml</ConfigurationFile>
