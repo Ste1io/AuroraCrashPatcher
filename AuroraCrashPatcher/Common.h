@@ -148,7 +148,6 @@ SK_INLINE uint32_t ByteSwap(uint32_t value) {
 		| (value & 0xFF000000) >> 0x18;
 }
 
-VOID XNotify(PWCHAR chText);
 BOOL MountSysDrives();
 BOOL FileExists(LPCSTR fileName);
 BOOL SelfDestruct(HANDLE hModule);

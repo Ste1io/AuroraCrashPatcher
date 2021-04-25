@@ -21,18 +21,7 @@ namespace {
 		LONG status = ObDeleteSymbolicLink(&linkname);
 		return (status >= 0) ? TRUE : FALSE;
 	}
-
-	DWORD WINAPI XNotifyProc(LPVOID lpParam) {
-		((void(*)(DWORD, DWORD, DWORD, LPCWSTR, ULONGLONG))0x816AAC08)(34, 0, 2, (PWCHAR)lpParam, 0);
-		return 0;
-	}
 } //namespace
-
-VOID XNotify(PWCHAR chText) {
-	if (((uint8_t(*)())0x80071A68)() != 1) {
-		CreateThread(0, 0, XNotifyProc, chText, 0, 0);
-	} else { XNotifyProc(chText); }
-}
 
 BOOL MountSysDrives() {
 	if ((XboxHardwareInfo->Flags & 0x20) == 0x20)
