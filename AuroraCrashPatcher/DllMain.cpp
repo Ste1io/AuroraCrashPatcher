@@ -19,6 +19,10 @@
  * v1.1: 04/25/2021
  *		-	Fixed bug causing patch to not load for users not using a stealth server
  *			(props to rubensyama for helping track this down).
+ * v1.2: 04/28/2021
+ *		-	Add tray open check for when playing OG games.
+ *		-	Add file logs
+ *		-	Add kernel build check
  */
 
 #include "stdafx.h"
@@ -75,29 +79,45 @@ DWORD WINAPI MainThread(LPVOID lpParameter) {
 		}
 	};
 
-	if (!MountSysDrives()) {
-		skDbgPrint("[sk] Failed to mount system drives\n");
-	}
-
 	while (Run(((uint32_t(*)())0x816E03B8)())) {
 		Sleep(100);
 	}
 
 	*(uint16_t *)((uint8_t *)g_hModule + 0x40) = 1;
-	((void(*)(HANDLE, HANDLE))0x8007D190)(g_hModule, g_hThread);
+	((void(*)(HANDLE, HANDLE))ResolveFunction("xboxkrnl.exe", 0x1A2))(g_hModule, g_hThread); //0x8007D190
 
 	return 0;
 }
 
+BOOL Init() {
+	if (!MountSysDrives()) {
+		DbgPrint("[sk] AuroraCrashPatcher: Failed to mount system drives\n");
+	} else { skDbgLog(TRUE, "AuroraCrashPatcher: System drives mounted"); }
+
+	if (XboxKrnlVersion->Build != 17559) {
+		DbgLog(TRUE, "Kernel build not 17559...AuroraCrashPatcher aborting");
+		return FALSE;
+	} else { skDbgLog(TRUE, "Kernel build: %i", XboxKrnlVersion->Build); }
+
+	if (TrayOpen()) {
+		DbgLog(TRUE, "Tray open...AuroraCrashPatcher aborting");
+		return FALSE;
+	} else { skDbgLog(TRUE, "Tray closed"); }
+
+	skDbgLog(TRUE, "AuroraCrashPatcher Init success");
+	return TRUE;
+}
+
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved) {
 	if (dwReason == DLL_PROCESS_ATTACH) {
-		skDbgPrint("++++++++++ sk ~ DLL_PROCESS_ATTACH ++++++++++\n");
-		g_hModule = hModule;
-		ExCreateThread(&g_hThread, 0, 0, (PVOID)XapiThreadStartup, (LPTHREAD_START_ROUTINE)MainThread, 0, 0x2 | 0x1);
-		XSetThreadProcessor(g_hThread, 0x4);
-		ResumeThread(g_hThread);
+		if (Init()) {
+			g_hModule = hModule;
+			ExCreateThread(&g_hThread, 0, 0, (PVOID)XapiThreadStartup, (LPTHREAD_START_ROUTINE)MainThread, 0, 0x2 | 0x1);
+			XSetThreadProcessor(g_hThread, 0x4);
+			ResumeThread(g_hThread);
+		}
 	} else if (dwReason == DLL_PROCESS_DETACH) {
-		skDbgPrint("========== sk ~ DLL_PROCESS_DETACH ==========\n");
+		skDbgLog(TRUE, "AuroraCrashPatcher unloading");
 	}
 
 	return TRUE;

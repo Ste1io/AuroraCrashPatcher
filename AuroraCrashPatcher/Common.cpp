@@ -29,13 +29,60 @@ BOOL MountSysDrives() {
 	return CreateSymbolicLink(SKMOUNT, USB, TRUE);
 }
 
-BOOL FileExists(LPCSTR fileName) {
-	if (GetFileAttributesA(fileName) == -1) {
+BOOL FileExists(const char * filename) {
+	if (GetFileAttributesA(filename) == -1) {
 		CONST DWORD lastError = GetLastError();
 		if (lastError == 2L || lastError == 3L)
 			return FALSE;
 	}
 	return TRUE;
+}
+
+BOOL TrayOpen() {
+	uint8_t msg[0x10], resp[0x10];
+	memset(msg, 0x0, 0x10);
+	memcpy(resp, msg, 0x10);
+	msg[0] = 0xA;
+	///((void(*)(LPVOID, LPVOID))ResolveFunction("xboxkrnl.xex", 0x29))(msg, resp); //0x80067F48
+	HalSendSMCMessage(msg, resp);
+	if (resp[1] == 0x60)
+		return TRUE;
+	return FALSE;
+}
+
+BOOL critSecInit = FALSE;
+CRITICAL_SECTION writeLock;
+
+void DbgLog(BOOL printToConsole, const char * fmt, ...) {
+	CHAR buf[0x512];
+	va_list va;
+	va_start(va, fmt);
+	vsprintf_s(buf, 0x512, fmt, va);
+	va_end(va);
+
+	if (printToConsole) {
+		DbgPrint("[sk] %i: %s\n", GetTickCount(), buf);
+	}
+
+	#ifdef SK_LOGPATH
+
+	if (!critSecInit) {
+		InitializeCriticalSection(&writeLock);
+		critSecInit = TRUE;
+	}
+
+	EnterCriticalSection(&writeLock);
+
+	FILE *f = fopen(SK_LOGPATH, "a");
+
+	if (f) {
+		fprintf(f, "%-10.10i: %s\n", GetTickCount(), buf);
+		fclose(f);
+	}
+
+	LeaveCriticalSection(&writeLock);
+
+	#endif
 }
 
 BOOL SelfDestruct(HANDLE hModule) {

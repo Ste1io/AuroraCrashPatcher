@@ -111,9 +111,10 @@ extern "C" {
 	LONG XexGetProcedureAddress(HANDLE, DWORD, PVOID);
 	PVOID RtlImageXexHeaderField(PVOID xexHeaderBase, DWORD key);
 	BOOL MmIsAddressValid(PVOID address);
-	VOID RtlInitAnsiString(PSTRING DestinationString, CONST CHAR *SourceString); //300
-	LONG ObCreateSymbolicLink(PSTRING SymbolicLinkName, PSTRING DeviceName); //259
-	LONG ObDeleteSymbolicLink(PSTRING SymbolicLinkName); //260
+	VOID RtlInitAnsiString(PSTRING DestinationString, CONST CHAR *SourceString);
+	LONG ObCreateSymbolicLink(PSTRING SymbolicLinkName, PSTRING DeviceName);
+	LONG ObDeleteSymbolicLink(PSTRING SymbolicLinkName);
+	VOID HalSendSMCMessage(LPVOID pCommandBuffer, LPVOID pRecvBuffer);
 
 	extern PXBOX_HARDWARE_INFO XboxHardwareInfo;
 	extern PXBOX_KRNL_VERSION XboxKrnlBaseVersion;
@@ -141,6 +142,7 @@ SK_INLINE DWORD ResolveFunction(PCHAR moduleName, DWORD ordinal) {
 	return addr;
 }
 
+
 SK_INLINE uint32_t ByteSwap(uint32_t value) {
 	return (value & 0x000000FF) << 0x18
 		| (value & 0x0000FF00) << 0x08
@@ -149,5 +151,7 @@ SK_INLINE uint32_t ByteSwap(uint32_t value) {
 }
 
 BOOL MountSysDrives();
-BOOL FileExists(LPCSTR fileName);
+BOOL FileExists(const char * fileName);
+BOOL TrayOpen();
+VOID DbgLog(BOOL printToConsole, const char * fmt, ...);
 BOOL SelfDestruct(HANDLE hModule);
