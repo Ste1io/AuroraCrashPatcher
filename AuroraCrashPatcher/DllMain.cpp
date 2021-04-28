@@ -22,7 +22,7 @@
  * v1.2: 04/28/2021
  *		-	Add tray open check for when playing OG games.
  *		-	Add file logs
- *		-	Add kernel build check
+ *		-	Add compatibility for old kernel builds < 17559
  */
 
 #include "stdafx.h"
@@ -50,24 +50,24 @@ DWORD WINAPI MainThread(LPVOID lpParameter) {
 		static uint32_t p = 0;
 		if (g_flag < 2) {
 			if (t != p) {
-				if (!t && !((uint32_t(*)(PVOID))0x800819D0)((PVOID)0x82000000))
-					return true;
-				if ((!t || t == 0xFFFE07D1 || t == 0xF5D20000) && ((uint32_t(*)(PVOID))0x800819D0)((PVOID)0x82000000)) {
+				if ((!t || t == 0xFFFE07D1 || t == 0xF5D20000) && MmIsAddressValid((PVOID)0x82000000)) {
 					if (*(uint16_t*)0x82000000 != 0x4D5A)
 						return true;
 					g_flag = ByteSwap(*(uint32_t*)(0x82000008 + ByteSwap(*(uint32_t*)0x8200003C))) > 0x607F951E;
 					if (!g_flag && !origHook.Addr) {
-						if (origHook.SetupDetour(0x81741150, HookProc)) {
-							DbgPrint("[sk] AuroraCrashPatcher v" SK_VERSION " by Stelio Kontos: ENABLED. [flag: 0x%X]\n", &g_flag);
+						if (origHook.SetupDetour(ResolveFunction("xam.xex", 0x43), HookProc)) { //0x81741150
+							skDbgLog(TRUE, "AuroraCrashPatcher v" SK_VERSION ": ENABLED [flag: 0x%X]", &g_flag);
 						}
 					}
 				} else if (!p || p == 0xFFFE07D1 || p == 0xF5D20000) {
 					if (origHook.Addr) {
 						origHook.TakeDownDetour();
-						DbgPrint("[sk] AuroraCrashPatcher v" SK_VERSION " DISABLED");
+						skDbgLog(TRUE, "AuroraCrashPatcher v" SK_VERSION ": DISABLED");
 						g_flag = 0;
 					}
 				}
+				if (!t && !MmIsAddressValid((PVOID)0x82000000))
+					return true;
 				p = t;
 			}
 			return true;
@@ -84,32 +84,37 @@ DWORD WINAPI MainThread(LPVOID lpParameter) {
 	}
 
 	*(uint16_t *)((uint8_t *)g_hModule + 0x40) = 1;
-	((void(*)(HANDLE, HANDLE))ResolveFunction("xboxkrnl.exe", 0x1A2))(g_hModule, g_hThread); //0x8007D190
+	((void(*)(HANDLE, HANDLE))ResolveFunction("xboxkrnl.exe", 0x1A2))(g_hModule, g_hThread);
 
 	return 0;
 }
 
 BOOL Init() {
-	if (!MountSysDrives()) {
-		DbgPrint("[sk] AuroraCrashPatcher: Failed to mount system drives\n");
-	} else { skDbgLog(TRUE, "AuroraCrashPatcher: System drives mounted"); }
+	skDbgLog(TRUE, "AuroraCrashPatcher initializing");
 
-	if (XboxKrnlVersion->Build != 17559) {
-		DbgLog(TRUE, "Kernel build not 17559...AuroraCrashPatcher aborting");
+	if (!MountSysDrives()) {
+		DbgPrint("[sk] Failed to mount system drives\n");
+	} else { skDbgLog(TRUE, "System drives mounted"); }
+
+	if (XboxKrnlVersion->Build < 0x4497) {
+		DbgLog(TRUE, "Kernel build %i detected...you really should update", XboxKrnlVersion->Build);
 		return FALSE;
-	} else { skDbgLog(TRUE, "Kernel build: %i", XboxKrnlVersion->Build); }
+	} else { skDbgLog(TRUE, "Kernel build %i detected", XboxKrnlVersion->Build); }
 
 	if (TrayOpen()) {
 		DbgLog(TRUE, "Tray open...AuroraCrashPatcher aborting");
 		return FALSE;
 	} else { skDbgLog(TRUE, "Tray closed"); }
 
-	skDbgLog(TRUE, "AuroraCrashPatcher Init success");
+	skDbgLog(TRUE, "AuroraCrashPatcher init success");
 	return TRUE;
 }
 
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved) {
 	if (dwReason == DLL_PROCESS_ATTACH) {
+		skDbgLog(TRUE, "AuroraCrashPatcher v" SK_VERSION ": LOADING");
+		skDbgLog(TRUE, "- Author: Stelio Kontos");
+		skDbgLog(TRUE, "- Github: https://github.com/StelioKontosXBL/AuroraCrashPatcher");
 		if (Init()) {
 			g_hModule = hModule;
 			ExCreateThread(&g_hThread, 0, 0, (PVOID)XapiThreadStartup, (LPTHREAD_START_ROUTINE)MainThread, 0, 0x2 | 0x1);
@@ -117,7 +122,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved) {
 			ResumeThread(g_hThread);
 		}
 	} else if (dwReason == DLL_PROCESS_DETACH) {
-		skDbgLog(TRUE, "AuroraCrashPatcher unloading");
+		skDbgLog(TRUE, "AuroraCrashPatcher v" SK_VERSION ": UNLOADING");
 	}
 
 	return TRUE;
