@@ -98,7 +98,6 @@ BOOL Init() {
 
 	if (XboxKrnlVersion->Build < 0x4497) {
 		DbgLog(TRUE, "Kernel build %i detected...you really should update", XboxKrnlVersion->Build);
-		return FALSE;
 	} else { skDbgLog(TRUE, "Kernel build %i detected", XboxKrnlVersion->Build); }
 
 	if (TrayOpen()) {

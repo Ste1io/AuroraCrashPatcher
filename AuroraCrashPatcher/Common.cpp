@@ -76,7 +76,7 @@ void DbgLog(BOOL printToConsole, const char * fmt, ...) {
 	FILE *f = fopen(SK_LOGPATH, "a");
 
 	if (f) {
-		fprintf(f, "%-10.10i: %s\n", GetTickCount(), buf);
+		fprintf(f, "%10i: %s\n", GetTickCount(), buf);
 		fclose(f);
 	}
 

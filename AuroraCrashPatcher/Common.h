@@ -142,7 +142,6 @@ SK_INLINE DWORD ResolveFunction(PCHAR moduleName, DWORD ordinal) {
 	return addr;
 }
 
-
 SK_INLINE uint32_t ByteSwap(uint32_t value) {
 	return (value & 0x000000FF) << 0x18
 		| (value & 0x0000FF00) << 0x08
