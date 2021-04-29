@@ -2,7 +2,8 @@
 Quick patch to prevent fatal crashing when downloading title assets (boxart, etc) through FSD or Aurora. As of v0.2-beta, this patch should work for everyone, regardless of geographic location (both in and outside of the US).
 
 ## Install/Usage
-- Download the latest compiled xex from the `Releases` page (direct download: https://github.com/StelioKontosXBL/AuroraCrashPatcher/releases/download/v1.1/AuroraCrashPatcher.xex)
+- Download the latest compiled xex (`AuroraCrashPatcher.xex`) from this repo's "Releases" page:
+https://github.com/StelioKontosXBL/AuroraCrashPatcher/releases/
 - Copy the xex to your RGH's Hdd, as you would any menu or plugin xex
 - Set as a launch plugin (use Dashlaunch, or edit your launch.ini/JRPC.ini manually)
 - Reboot, and you're done
