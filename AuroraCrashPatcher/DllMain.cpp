@@ -45,22 +45,28 @@ INT HookProc(INT x, PCHAR h, HANDLE e, XNDNS **s) {
 }
 
 DWORD WINAPI MainThread(LPVOID lpParameter) {
+	skDbgLog(TRUE, "AuroraCrashPatcher " __FUNCTION__ " started");
+
 	auto Run = [] (uint32_t t) -> bool
 	{
 		static uint32_t p = 0;
 		if (g_flag < 2) {
 			if (t != p) {
+				skDbgLog(TRUE, "Title changed: 0x%08X -> 0x%08X", p, t);
 				if ((!t || t == 0xFFFE07D1 || t == 0xF5D20000) && MmIsAddressValid((PVOID)0x82000000)) {
 					if (*(uint16_t*)0x82000000 != 0x4D5A)
 						return true;
+					skDbgLog(TRUE, "Checking if patch is needed with this version of Aurora/FSD...");
 					g_flag = ByteSwap(*(uint32_t*)(0x82000008 + ByteSwap(*(uint32_t*)0x8200003C))) > 0x607F951E;
 					if (!g_flag && !origHook.Addr) {
+						skDbgLog(TRUE, "Setting up hook...");
 						if (origHook.SetupDetour(ResolveFunction("xam.xex", 0x43), HookProc)) { //0x81741150
 							skDbgLog(TRUE, "AuroraCrashPatcher v" SK_VERSION ": ENABLED [flag: 0x%X]", &g_flag);
 						}
 					}
 				} else if (!p || p == 0xFFFE07D1 || p == 0xF5D20000) {
 					if (origHook.Addr) {
+						skDbgLog(TRUE, "Taking down hook...");
 						origHook.TakeDownDetour();
 						skDbgLog(TRUE, "AuroraCrashPatcher v" SK_VERSION ": DISABLED");
 						g_flag = 0;
@@ -79,7 +85,7 @@ DWORD WINAPI MainThread(LPVOID lpParameter) {
 		}
 	};
 
-	while (Run(((uint32_t(*)())0x816E03B8)())) {
+	while (Run(((uint32_t(*)())ResolveFunction("xam.xex", 0x1CF))())) {
 		Sleep(100);
 	}
 
@@ -90,10 +96,13 @@ DWORD WINAPI MainThread(LPVOID lpParameter) {
 }
 
 BOOL Init() {
-	skDbgLog(TRUE, "AuroraCrashPatcher initializing");
+	skDbgLog(TRUE, "AuroraCrashPatcher v" SK_VERSION ": LOADING");
+	skDbgLog(TRUE, "- Author: Stelio Kontos");
+	skDbgLog(TRUE, "- Github: https://github.com/StelioKontosXBL/AuroraCrashPatcher");
+	skDbgLog(TRUE, "initializing...");
 
 	if (!MountSysDrives()) {
-		DbgPrint("[sk] Failed to mount system drives\n");
+		skDbgPrint("[sk] Failed to mount system drives\n");
 	} else { skDbgLog(TRUE, "System drives mounted"); }
 
 	if (XboxKrnlVersion->Build < 0x4497) {
@@ -101,19 +110,16 @@ BOOL Init() {
 	} else { skDbgLog(TRUE, "Kernel build %i detected", XboxKrnlVersion->Build); }
 
 	if (TrayOpen()) {
-		DbgLog(TRUE, "Tray open...AuroraCrashPatcher aborting");
+		skDbgLog(TRUE, "Tray open...AuroraCrashPatcher aborting");
 		return FALSE;
 	} else { skDbgLog(TRUE, "Tray closed"); }
 
-	skDbgLog(TRUE, "AuroraCrashPatcher init success");
+	skDbgLog(TRUE, "Initialization complete");
 	return TRUE;
 }
 
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved) {
 	if (dwReason == DLL_PROCESS_ATTACH) {
-		skDbgLog(TRUE, "AuroraCrashPatcher v" SK_VERSION ": LOADING");
-		skDbgLog(TRUE, "- Author: Stelio Kontos");
-		skDbgLog(TRUE, "- Github: https://github.com/StelioKontosXBL/AuroraCrashPatcher");
 		if (Init()) {
 			g_hModule = hModule;
 			ExCreateThread(&g_hThread, 0, 0, (PVOID)XapiThreadStartup, (LPTHREAD_START_ROUTINE)MainThread, 0, 0x2 | 0x1);

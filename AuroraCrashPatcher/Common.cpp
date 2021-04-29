@@ -43,7 +43,6 @@ BOOL TrayOpen() {
 	memset(msg, 0x0, 0x10);
 	memcpy(resp, msg, 0x10);
 	msg[0] = 0xA;
-	///((void(*)(LPVOID, LPVOID))ResolveFunction("xboxkrnl.xex", 0x29))(msg, resp); //0x80067F48
 	HalSendSMCMessage(msg, resp);
 	if (resp[1] == 0x60)
 		return TRUE;
@@ -53,7 +52,7 @@ BOOL TrayOpen() {
 BOOL critSecInit = FALSE;
 CRITICAL_SECTION writeLock;
 
-void DbgLog(BOOL printToConsole, const char * fmt, ...) {
+VOID DbgLog(bool printToConsole, const char * fmt, ...) {
 	CHAR buf[0x512];
 	va_list va;
 	va_start(va, fmt);
@@ -91,7 +90,7 @@ BOOL SelfDestruct(HANDLE hModule) {
 	auto len = wcstombs(chName, wchName, 260);
 	chName[len] = '\0';
 
-	skDbgPrint("[sk] Attempting to delete file: %s\n", chName);
+	DbgLog(TRUE, "Attempting to delete file: %s", chName);
 
 	char chPath[260];
 	int i = strlen(chName) - 1;
@@ -100,15 +99,15 @@ BOOL SelfDestruct(HANDLE hModule) {
 	strcat(chPath, &chName[i]);
 
 	if (!FileExists(chPath)) {
-		skDbgPrint("[sk] Error finding file: %s\n", chPath);
+		DbgLog(TRUE, "Error finding file: %s", chPath);
 		return FALSE;
 	}
 
 	if (!DeleteFileA(chPath)) {
-		skDbgPrint("[sk] Error deleting file: %s\n", chPath);
+		DbgLog(TRUE, "Error deleting file: %s", chPath);
 		return FALSE;
 	}
 
-	skDbgPrint("[sk] Successfully deleted file: %s\n", chName);
+	DbgLog(TRUE, "Successfully deleted file: %s", chName);
 	return TRUE;
 }

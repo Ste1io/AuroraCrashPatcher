@@ -152,5 +152,5 @@ SK_INLINE uint32_t ByteSwap(uint32_t value) {
 BOOL MountSysDrives();
 BOOL FileExists(const char * fileName);
 BOOL TrayOpen();
-VOID DbgLog(BOOL printToConsole, const char * fmt, ...);
+VOID DbgLog(bool printToConsole, const char * fmt, ...);
 BOOL SelfDestruct(HANDLE hModule);
