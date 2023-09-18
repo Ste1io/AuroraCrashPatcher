@@ -20,4 +20,7 @@ Ye, I know. Hacky af, but it works. It's a quick fix, nothing more, nothing less
 If you want to automatically disable this patch on users' consoles with your next update, simply add a call to XAM ordinal 0x43 with "aurora.crash.patched" as the first parameter, ignoring the result (see DllMain.cpp:31). If the patch is running on the user's console, that will trigger a self-unload and wipe this patch from the user's console. As of v0.3-beta, AuroraCrashPatcher will automatically disable itself for the duration of that session until the next title reboot if an updated version of Aurora or FSD is detected (see DllMain.cpp:46)
 
 ## Disclaimer
-Neither this repo, nor myself, are directly affiliated with Aurora or FSD, or their development teams.
+Neither this repo, ~~nor myself~~, are directly affiliated with Aurora or FSD, or their development teams.
+
+## NOTE:
+This patch can still be used for FSD. Following the release of this patch, I was brought on to the Aurora team (Phoenix), and consequently the latest release of Aurora has been updated to fix this bug, making this patch no longer necessary.
